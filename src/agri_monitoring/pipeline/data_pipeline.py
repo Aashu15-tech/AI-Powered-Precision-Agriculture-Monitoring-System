@@ -5,6 +5,8 @@ import logging
 from src.agri_monitoring.data.data_loader import load_data
 from src.agri_monitoring.features.feature_engineering import create_features
 from src.agri_monitoring.features.labeling import process_group, smooth_labels
+from src.agri_monitoring.data.weather_loader import get_weather_data
+
 logger = logging.getLogger(__name__)
 
 from pathlib import Path
@@ -20,8 +22,28 @@ def run_pipeline(input_path: Path, output_path: Path):
     # Load data
     df = load_data(input_path)
 
-    # Convert date
+    # -----------------------------
+    # Add Weather Data (Simple Version)
+    # -----------------------------
+
+    # Take one sample location
+    sample_lat = df['lat'].iloc[0]
+    sample_lon = df['lon'].iloc[0]
+
+    # Get weather data
+    weather_df = get_weather_data(
+        lat=sample_lat,
+        lon=sample_lon,
+        start_date="20230101",
+        end_date="20231231"
+    )
+
+    # Convert date format
     df['date'] = pd.to_datetime(df['date'])
+    weather_df['date'] = pd.to_datetime(weather_df['date'])
+
+    # Merge with main dataset
+    df = pd.merge(df, weather_df, on='date', how='left')
 
     # Round lat/lon
     df['lat_r'] = df['lat'].round(3)

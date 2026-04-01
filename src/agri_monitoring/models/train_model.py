@@ -26,7 +26,10 @@ def train_model(data_path: Path):
         "ndvi_trend",
         "prev_ndvi",
         "next_ndvi",
-        "ndvi_drop"
+        "ndvi_drop",
+        "temperature",
+        "humidity",
+        "precipitation"
     ]
 
     X = df[feature_cols]
