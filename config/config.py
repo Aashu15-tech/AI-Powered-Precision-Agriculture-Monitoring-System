@@ -22,3 +22,9 @@ FEATURE_COLS = [
     'savi_mean', 'savi_max',
     'ndvi_ndwi_corr', 'dual_stress_fraction',
 ]
+
+IMG_SIZE = 224
+BATCH_SIZE = 32
+EPOCHS = 40
+DATASET_PATH = "dataset/"
+MODEL_PATH = "models/model.keras"
