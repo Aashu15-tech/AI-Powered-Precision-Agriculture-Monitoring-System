@@ -50,9 +50,9 @@ if __name__ == '__main__':
     import pickle
 
     with open('models/model.pkl',      'wb') as f:
-        pickle.dump(rf_model, f)
+        pickle.dump(model, f)
 
     with open('models/label_encoder.pkl', 'wb') as f:
         pickle.dump(label_encoder, f)
 
-    print("[✓] Model aur encoder save ho gaye")
+    print("[✓] Model and encoder saved")

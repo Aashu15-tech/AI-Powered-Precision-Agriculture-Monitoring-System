@@ -22,3 +22,25 @@ FEATURE_COLS = [
     'savi_mean', 'savi_max',
     'ndvi_ndwi_corr', 'dual_stress_fraction',
 ]
+
+# ── GEE / Firozpur plot config ────────────────────────────────────────────────
+# Specific agricultural plot near Firozpur, Punjab
+FIROZPUR_PLOT = {
+    'center_lat'  : 30.9252,
+    'center_lon'  : 74.6157,
+    'buffer_m'    : 500,          # 500m buffer around center = ~1 sq km plot
+    'n_points'    : 20,           # number of sample locations inside plot
+}
+
+# Last N days of Sentinel-2 data to fetch
+FETCH_DAYS    = 100               # ~1 month 20 days
+CLOUD_COVER   = 20               # max cloud cover % allowed
+
+
+
+
+# ── Disease model (model.keras) image input config ───────────────────────────
+IMG_SIZE      = 224          # resize crop photo to IMG_SIZE x IMG_SIZE
+INPUT_SHAPE   = (224, 224, 3)
+CLASS_NAMES   = ['No Disease', 'Disease']   # index 0 = No Disease, 1 = Disease
+DISEASE_THRESHOLD = 0.5     # sigmoid output above this → Disease
