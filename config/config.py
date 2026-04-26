@@ -43,4 +43,13 @@ CLOUD_COVER   = 20               # max cloud cover % allowed
 IMG_SIZE      = 224          # resize crop photo to IMG_SIZE x IMG_SIZE
 INPUT_SHAPE   = (224, 224, 3)
 CLASS_NAMES   = ['No Disease', 'Disease']   # index 0 = No Disease, 1 = Disease
+
+
+
+
 DISEASE_THRESHOLD = 0.5     # sigmoid output above this → Disease
+IMG_SIZE = 224
+BATCH_SIZE = 32
+EPOCHS = 40
+DATASET_PATH = "dataset/"
+MODEL_PATH = "models/model.keras"
