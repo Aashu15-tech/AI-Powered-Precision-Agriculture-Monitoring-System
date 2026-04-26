@@ -42,8 +42,7 @@ CLOUD_COVER   = 20               # max cloud cover % allowed
 # ── Disease model (model.keras) image input config ───────────────────────────
 IMG_SIZE      = 224          # resize crop photo to IMG_SIZE x IMG_SIZE
 INPUT_SHAPE   = (224, 224, 3)
-CLASS_NAMES   = ['No Disease', 'Disease']   # index 0 = No Disease, 1 = Disease
-
+CLASS_NAMES   = ['Early_Blight', 'Late_Blight', 'Healthy']  
 
 
 
