@@ -168,7 +168,7 @@ with left_col:
 
     if uploaded_photo is not None:
         st.image(uploaded_photo, caption="Uploaded crop photo",
-                 use_column_width=True)
+                 use_container_width=True)
 
         disease_btn = st.button("🧪 Detect Disease", type="primary",
                                 use_container_width=True)
