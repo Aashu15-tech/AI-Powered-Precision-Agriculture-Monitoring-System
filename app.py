@@ -196,9 +196,8 @@ with left_col:
                         # Probability bar
                         st.markdown("**Probabilities:**")
                         prob_df = pd.DataFrame({
-                            'Class'      : ['No Disease', 'Disease'],
-                            'Probability': [result['no_disease_prob'],
-                                            result['disease_prob']]
+                            'Class'      : list(result['raw_probs'].keys()),
+                            'Probability': list(result['raw_probs'].values())
                         })
                         st.bar_chart(prob_df.set_index('Class'))
 
@@ -485,7 +484,7 @@ with right_col:
                 buf = io.BytesIO()
                 fig.savefig(buf, format='png', dpi=130, bbox_inches='tight')
                 buf.seek(0)
-                st.image(buf, use_column_width=True)
+                st.image(buf, use_container_width=True)
                 plt.close(fig)
 
         else:
