@@ -14,10 +14,10 @@ import os
 os.environ["EARTHENGINE_CREDENTIALS"] = "/Users/aashuanand/earthengine_token.json"
 
 try:
-    ee.Initialize(project='agrizsquad')
+    ee.Initialize(project='extractearthengine')
 except:
     ee.Authenticate(auth_mode='localhost')
-    ee.Initialize(project='agrizsquad')
+    ee.Initialize(project='extractearthengine')
 
 # ── DATE RANGE (50 DAYS) ────────────────────────────────
 end_date = datetime.utcnow()
