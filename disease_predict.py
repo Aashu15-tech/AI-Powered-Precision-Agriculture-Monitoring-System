@@ -9,7 +9,7 @@ import numpy as np
 import warnings
 warnings.filterwarnings('ignore')
 
-from config.config import IMG_SIZE, INPUT_SHAPE, CLASS_NAMES, DISEASE_THRESHOLD
+from config.config import IMG_SIZE, CLASS_NAMES
 
 
 # =============================================================================
@@ -17,6 +17,7 @@ from config.config import IMG_SIZE, INPUT_SHAPE, CLASS_NAMES, DISEASE_THRESHOLD
 # =============================================================================
 
 _disease_model = None   # module-level cache — load only once
+
 
 def load_disease_model(model_path: str = 'models/model.keras'):
     """
@@ -29,28 +30,54 @@ def load_disease_model(model_path: str = 'models/model.keras'):
         keras Model object.
     """
     global _disease_model
-
     if _disease_model is not None:
         return _disease_model
 
     import os
     if not os.path.exists(model_path):
-        raise FileNotFoundError(
-            f"[✗] model.keras not found at '{model_path}'\n"
-            f"    Sahi path config mein set karo."
-        )
+        raise FileNotFoundError(f"[✗] model.keras not found at '{model_path}'")
 
-    # Lazy import — tensorflow heavy, load only when needed
+    import tensorflow as tf
     from tensorflow.keras.models import load_model
-    _disease_model = load_model(model_path)
+    from tensorflow.keras.layers import BatchNormalization
+
+    # Subclass BatchNormalization to silently drop unsupported args
+    class CompatBatchNorm(BatchNormalization):
+        def __init__(self, **kwargs):
+            kwargs.pop('renorm', None)
+            kwargs.pop('renorm_clipping', None)
+            kwargs.pop('renorm_momentum', None)
+            super().__init__(**kwargs)
+
+    _disease_model = load_model(
+        model_path,
+        custom_objects={'BatchNormalization': CompatBatchNorm}
+    )
     print(f"[✓] Disease model loaded → {model_path}")
-    print(f"    Input shape expected : {INPUT_SHAPE}")
-    return _disease_model
+    return _disease_model   
+#     global _disease_model
+
+#     if _disease_model is not None:
+#         return _disease_model
+
+#     import os
+#     if not os.path.exists(model_path):
+#         raise FileNotFoundError(
+#             f"[✗] model.keras not found at '{model_path}'\n"
+#             f"    Sahi path config mein set karo."
+#         )
+
+#     # Lazy import — tensorflow heavy, load only when needed
+#     from tensorflow.keras.models import load_model
+#     _disease_model = load_model(model_path)
+#     print(f"[✓] Disease model loaded → {model_path}")
+#     print(f"    Input shape expected : {INPUT_SHAPE}")
+#     return _disease_model
 
 
-# =============================================================================
-# PREPROCESS UPLOADED PHOTO
-# =============================================================================
+# # =============================================================================
+# # PREPROCESS UPLOADED PHOTO
+# # =============================================================================
 
 def preprocess_image(image_input) -> np.ndarray:
     """
@@ -106,34 +133,26 @@ def predict_disease(image_input,
 
     Returns:
         dict: {
-            'label'      : 'Disease' or 'No Disease',
-            'confidence' : float (e.g. 87.3  → 87.3%),
-            'raw_prob'   : float (sigmoid output 0–1),
-            'disease_prob'    : float (% probability of Disease),
-            'no_disease_prob' : float (% probability of No Disease),
+            'label'      : predicted class name from CLASS_NAMES,
+            'confidence' : float (e.g. 87.3 → 87.3%),
+            'raw_probs'  : dict of {class_name: probability%} for all classes,
         }
     """
     model = load_disease_model(model_path)
     img   = preprocess_image(image_input)
 
-    # Model output: sigmoid → single float in [0, 1]
+    # Model output: softmax → shape (1, 3)
     raw_output = model.predict(img, verbose=0)
+    probs = raw_output[0]  # shape: (3,) — one probability per class
 
-    # Handle both (1,1) and (1,) output shapes
-    raw_prob = float(raw_output.flatten()[0])
-
-    # Threshold decision
-    if raw_prob >= DISEASE_THRESHOLD:
-        label      = 'Disease'
-        confidence = raw_prob * 100
-    else:
-        label      = 'No Disease'
-        confidence = (1 - raw_prob) * 100
+    # Get predicted class
+    predicted_idx = int(np.argmax(probs))
+    label         = CLASS_NAMES[predicted_idx]
+    confidence    = round(float(np.max(probs)) * 100, 1)
 
     return {
-        'label'           : label,
-        'confidence'      : round(confidence, 1),
-        'raw_prob'        : round(raw_prob, 4),
-        'disease_prob'    : round(raw_prob * 100, 1),
-        'no_disease_prob' : round((1 - raw_prob) * 100, 1),
+        'label'      : label,
+        'confidence' : confidence,
+        'raw_probs'  : {CLASS_NAMES[i]: round(float(probs[i]) * 100, 1)
+                       for i in range(len(CLASS_NAMES))}
     }
