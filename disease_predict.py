@@ -92,7 +92,7 @@ def preprocess_image(image_input) -> np.ndarray:
             - bytes (raw image bytes)
 
     Returns:
-        np.ndarray: Shape (1, IMG_SIZE, IMG_SIZE, 3), normalized to [0, 1]
+        np.ndarray: Shape (1, IMG_SIZE, IMG_SIZE, 3), preprocessed for EfficientNet
     """
     from PIL import Image
     import io
@@ -109,8 +109,11 @@ def preprocess_image(image_input) -> np.ndarray:
     # Resize to model's expected input size (from config)
     img = img.resize((IMG_SIZE, IMG_SIZE))
 
-    # Convert to numpy + normalize to [0, 1]
-    arr = np.array(img, dtype=np.float32) / 255.0
+    # Match the EfficientNet preprocessing used during training.
+    from tensorflow.keras.applications.efficientnet import preprocess_input
+
+    arr = np.array(img, dtype=np.float32)
+    arr = preprocess_input(arr)
 
     # Add batch dimension → (1, IMG_SIZE, IMG_SIZE, 3)
     arr = np.expand_dims(arr, axis=0)
